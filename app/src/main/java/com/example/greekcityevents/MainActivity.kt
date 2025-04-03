@@ -1,5 +1,6 @@
 package com.example.greekcityevents
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,14 +11,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.greekcityevents.data.EventRepository
 import com.example.greekcityevents.model.Category
 import com.example.greekcityevents.model.City
-import com.example.greekcityevents.ui.EventsViewModel
 import com.example.greekcityevents.ui.components.EventCard
 import com.example.greekcityevents.ui.theme.GreekCityEventsTheme
 
@@ -40,16 +40,15 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventsScreen(
-    viewModel: EventsViewModel = viewModel()
-) {
-    val events by viewModel.events.collectAsState()
-    val mostViewedEvents by viewModel.mostViewedEvents.collectAsState()
-    val selectedCity by viewModel.selectedCity.collectAsState()
-    val selectedCategory by viewModel.selectedCategory.collectAsState()
-    
+fun EventsScreen() {
+    val context = LocalContext.current
     var expandedCityDropdown by remember { mutableStateOf(false) }
     var expandedCategoryDropdown by remember { mutableStateOf(false) }
+    val selectedCity by remember { mutableStateOf<City?>(null) }
+    val selectedCategory by remember { mutableStateOf<Category?>(null) }
+
+    // Sample event list (get this from EventRepository or your local data)
+    val events = EventRepository().getSampleEventsForHomescreen()
 
     Scaffold { padding ->
         Column(
@@ -99,8 +98,11 @@ fun EventsScreen(
                             DropdownMenuItem(
                                 text = { Text(city.name.lowercase().capitalize()) },
                                 onClick = {
-                                    viewModel.setSelectedCity(city)
                                     expandedCityDropdown = false
+                                    val intent = Intent(context, EventListActivity::class.java).apply {
+                                        putExtra("selectedCity", city.name)
+                                    }
+                                    context.startActivity(intent)
                                 }
                             )
                         }
@@ -133,8 +135,11 @@ fun EventsScreen(
                             DropdownMenuItem(
                                 text = { Text(category.name.lowercase().capitalize()) },
                                 onClick = {
-                                    viewModel.setSelectedCategory(category)
                                     expandedCategoryDropdown = false
+                                    val intent = Intent(context, EventListActivity::class.java).apply {
+                                        putExtra("selectedCategory", category.name)
+                                    }
+                                    context.startActivity(intent)
                                 }
                             )
                         }
@@ -142,29 +147,26 @@ fun EventsScreen(
                 }
             }
 
-            // Events List
+            // Events List (Including Most Viewed Events)
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                if (selectedCity == null && selectedCategory == null) {
-                    item {
-                        Text(
-                            text = "Most Viewed Events",
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
-                    items(mostViewedEvents) { event ->
-                        EventCard(event = event)
-                    }
-                } else {
-                    items(events) { event ->
-                        EventCard(event = event)
-                    }
+                // Most Viewed Events Section
+                item {
+                    Text(
+                        text = "Most Viewed Events",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
+
+                // Display all the events from the sample data
+                items(events) { event ->
+                    EventCard(event = event)
                 }
             }
         }

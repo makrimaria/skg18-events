@@ -8,22 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 
 class EventRepository {
-    private val events = MutableStateFlow(getSampleEvents())
 
-    fun getAllEvents(): Flow<List<Event>> = events
-
-    fun getEventsByCity(city: City): Flow<List<Event>> =
-        events.map { eventList -> eventList.filter { it.city == city } }
-
-    fun getEventsByCategory(category: Category): Flow<List<Event>> =
-        events.map { eventList -> eventList.filter { it.category == category } }
-
-    fun getMostViewedEvents(limit: Int = 10): Flow<List<Event>> =
-        events.map { eventList -> 
-            eventList.sortedByDescending { it.viewCount }.take(limit)
-        }
-
-    private fun getSampleEvents(): List<Event> = listOf(
+    fun getSampleEventsForHomescreen(): List<Event> = listOf(
         Event(
             id = "1",
             title = "Athens Music Festival",
@@ -50,9 +36,9 @@ class EventRepository {
             id = "3",
             title = "Patras Carnival",
             description = "Biggest carnival celebration in Greece",
-            city = City.PATRAS,
+            city = City.PATRA,
             category = Category.ENTERTAINMENT,
-            imageUrl = "https://images.unsplash.com/photo-1581363111677-0a9b49aaa7d9",
+            imageUrl = "https://images.unsplash.com/photo-1674821120341-5565be3a1386?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             date = "2024-03-30",
             viewCount = 2000,
             location = "City Center"

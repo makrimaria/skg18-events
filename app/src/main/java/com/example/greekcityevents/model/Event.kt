@@ -15,7 +15,7 @@ data class Event(
 enum class City {
     ATHENS,
     THESSALONIKI,
-    PATRAS,
+    PATRA,
     LARISSA
 }
 
