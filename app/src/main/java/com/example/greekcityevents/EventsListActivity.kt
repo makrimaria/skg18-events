@@ -32,27 +32,51 @@ class EventListActivity : AppCompatActivity() {
         val selectedCity = intent.getStringExtra("selectedCity")
         val selectedCategory = intent.getStringExtra("selectedCategory")
 
+
         fetchEvents(selectedCity, selectedCategory)
     }
 
     private fun fetchEvents(city: String?, category: String?) {
-        RetrofitClient.instance.getEvents(city, category).enqueue(object : Callback<List<Event>> {
-            override fun onResponse(call: Call<List<Event>>, response: Response<List<Event>>) {
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        eventList.clear()
-                        eventList.addAll(it)
-                        eventAdapter.notifyDataSetChanged()
-                    }
-                } else {
-                    Toast.makeText(this@EventListActivity, "Failed to load events", Toast.LENGTH_SHORT).show()
-                }
-            }
 
-            override fun onFailure(call: Call<List<Event>>, t: Throwable) {
-                Toast.makeText(this@EventListActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-                Log.e("EventListActivity", "Error fetching events", t)
-            }
-        })
+        if(city.isNullOrEmpty()) {
+            RetrofitClient.instance.getEventsByCategory(category.toString()).enqueue(object : Callback<List<Event>> {
+                override fun onResponse(call: Call<List<Event>>, response: Response<List<Event>>) {
+                    if (response.isSuccessful) {
+                        response.body()?.let {
+                            eventList.clear()
+                            eventList.addAll(it)
+                            eventAdapter.notifyDataSetChanged()
+                        }
+                    } else {
+                        Toast.makeText(this@EventListActivity, "Failed to load events", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<List<Event>>, t: Throwable) {
+                    Toast.makeText(this@EventListActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("EventListActivity", "Error fetching events", t)
+                }
+            })
+        } else {
+            RetrofitClient.instance.getEventsByCity(city.toString()).enqueue(object : Callback<List<Event>> {
+                override fun onResponse(call: Call<List<Event>>, response: Response<List<Event>>) {
+                    if (response.isSuccessful) {
+                        response.body()?.let {
+                            eventList.clear()
+                            eventList.addAll(it)
+                            eventAdapter.notifyDataSetChanged()
+                        }
+                    } else {
+                        Toast.makeText(this@EventListActivity, "Failed to load events", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<List<Event>>, t: Throwable) {
+                    Toast.makeText(this@EventListActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("EventListActivity", "Error fetching events", t)
+                }
+            })
+        }
+
     }
 }
